@@ -46,38 +46,6 @@ Enjoy!
     <None Remove="Infrastructure\Extern\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Controls\Compound\KeyboardFunction.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Visual\KeyboardVisual.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Compound\KeyRecorderTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Visual\KbControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Simple\KeyStrokeDisplay.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Tabs\KeyTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Tabs\LedTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Tabs\MediaKeyTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Tabs\MouseButtonsTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Controls\Simple\TransparentLabel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="config.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

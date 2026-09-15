@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -35,19 +36,22 @@ namespace RSoft.MacroPad.Infrastructure
         //public static extern IntPtr GetKeyboardLayout(uint threadId = 0);
 
 
-        public static long ToWmKeyDownEvent(uint scanCode, uint keyCode)
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int valueSize);
+
+        /// <summary>
+        /// Pinta a barra de título com a cor do app (só funciona no Windows 11; no 10 a chamada é ignorada).
+        /// </summary>
+        public static void SetTitleBarColors(IntPtr windowHandle, Color background, Color text)
         {
-            // shift the scancode to the high word
-            long result = (scanCode << 16); // | (1 << 24);
-            if (keyCode == 0x2D ||
-                keyCode == 0x2E ||
-            keyCode == 144 ||
-                (0x21 <= keyCode && keyCode <= 0x28))
-            {
-                // add the extended key flag
-                result |= 0x1000000;
-            }
-            return result;
+            // Constantes DWMWA_CAPTION_COLOR e DWMWA_TEXT_COLOR da documentação do DwmSetWindowAttribute
+            const int captionColorAttribute = 35;
+            const int textColorAttribute = 36;
+
+            var backgroundColorRef = ColorTranslator.ToWin32(background);
+            var textColorRef = ColorTranslator.ToWin32(text);
+            DwmSetWindowAttribute(windowHandle, captionColorAttribute, ref backgroundColorRef, sizeof(int));
+            DwmSetWindowAttribute(windowHandle, textColorAttribute, ref textColorRef, sizeof(int));
         }
 
         public static PWSTR ToPWSTR(this string s)

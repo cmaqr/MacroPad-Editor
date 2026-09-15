@@ -4,3 +4,14 @@ obj/
 packages/
 *.user
 *.bin/
+dist/
+Releases/
+
+# Arquivos que o app cria ao lado do executável
+assignments.json
+relay.json
+meus-atalhos.txt
+hid.log
+error.log
+perfis/
+colinhas/

@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # O app é WinForms e conversa com HID do Windows, então só compila em runner Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # 8.0 compila; 6.0 é o alvo do app e do projeto de testes
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Compilar
+        run: dotnet build src/RSoft.MacroPad.sln -c Release
+
+      - name: Testar
+        run: dotnet test src/RSoft.MacroPad.Tests -c Release --no-build

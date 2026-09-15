@@ -1,144 +1,138 @@
 # MacroPad
-So you've ordered a chinese macro keypad and the software supplied doesn't make any sense to you? That was my problem as well...
 
-![image](https://github.com/rOzzy1987/MacroPad/assets/617600/adf5b698-9ba4-4060-ade0-1fb078cac21c)
+App para configurar aqueles macropads USB chineses (teclas + knobs) sem depender do programa que vem na caixa.
+Você clica numa tecla no desenho, escolhe o que ela faz e envia.
 
-Enter the RSoft MacroPad!
+Esta é uma versão com interface refeita do [RSoft MacroPad](https://github.com/rOzzy1987/MacroPad), de Mihály Rozovits.
+A parte que conversa com o teclado por USB é a dele; a interface, os atalhos prontos e as funções extras foram reescritos.
 
-![image](https://github.com/rOzzy1987/MacroPad/assets/617600/5fd74dc1-b420-4388-be8b-f427a05bedca)
+![Tela do app](docs/tela-clara.png)
 
+## O que dá para fazer
 
-## Installation
-No need to install anything, just download and extract a [Release](https://github.com/rOzzy1987/MacroPad/releases)
+- **Atalhos prontos**: mais de 150, com busca e filtro por categoria (Essenciais, Navegador, Janelas, Windows, Mídia, Mouse, Reuniões, Office, Programação, Criação e Streaming).
+- **Texto**: a tecla digita um texto sozinha. Bom para saudações e respostas repetidas.
+- **Gravar**: aperte a combinação no seu teclado e ela vira a macro. Funciona em teclado ABNT2, porque o app usa a posição física da tecla.
+- **Kits**: 7 conjuntos que configuram todas as teclas e knobs de uma vez (Música, Produtividade, Navegador, Teams, Janelas, OBS e VS Code).
+- **Iluminação**: escolha do efeito e da cor, quando o modelo tem.
+- **Turbo (F13–F24)**: teclas que teclado comum não tem. Grave uma delas no macropad e o app faz o PC digitar um texto longo (com acento) ou abrir um programa, pasta ou site. Só funciona com o app aberto.
+- **Perfis**: salve a configuração inteira com nome, aplique de novo com um clique, exporte, importe ou deixe um perfil entrar sozinho quando o teclado for conectado.
+- **Colinha**: gera uma imagem com o desenho do teclado e o que cada tecla faz, para imprimir ou usar de papel de parede.
+- **Tema claro e escuro**: segue o Windows e tem botão para trocar.
 
-Alternatively you ca clone the repository, build and run.
+![Tema escuro e aba Turbo](docs/aba-turbo.png)
 
-## GUI
-The main funcitons of the GUI are displayed on the image below
-![image](https://github.com/rOzzy1987/MacroPad/assets/617600/857b150b-291a-419f-82b2-e10fad5ed53f)
+## Como rodar
 
-The key sequence box is displaying keys to be sent by the macro keypad. You can see which modifiers are also sent with each keystroke, and on which sides were they used.
-The example below shows `LeftCtrl + LeftShift + F5` `Enter`
+Precisa do **.NET 8 SDK** para compilar e do **.NET 6 Desktop Runtime** para executar.
 
-![image](https://github.com/rOzzy1987/MacroPad/assets/617600/0e21d542-9a4e-44ef-bc9b-868b0bf810ac)
-
-The key difference to the original software is the this app translates hardware scancodes. This means if you have a non-US keyboard, you still can record keystrokes and will get the same keypresses when using the keypad 
-
-## Usage
-### Starting
-Open the app and connect your macro keypad.
- 
-<sub>The software will configure the first keypad it finds, so if you have multiple, disconnect the others while starting the app.</sub>
-
-If there is an existing configuration for your device, the app will select the layout for you. 
-
-If you can't see your keypad's visuals on screen or what you see is not your keypad you can select another one from the menu using the ![image](https://github.com/rOzzy1987/MacroPad/assets/617600/d5ec2fd0-3729-40ef-aad6-aa7030fdadf3)
-
- icon. If you can't find any, that resembles your keypad, you can just select the _***12 buttons 3 knobs***_ layout, and use that (this is just a visual representation, doesn't affect operation)
-
-
-### Operation
-#### Selecting key to configure
-Find the key on the visual that you want to configure and click on it. For knobs, click on the center part for the push function, or click on either side for the rotation function. The selected part should be highlighted.
-
-If your keypad supports layers, select the layer as well with the radio buttons above.
-
-#### Selecting the function
-You can either set the LED mode or the selected key's function. To choose just select the appropriate tab in the _Key setup_ box.
-
-##### LED mode
-<sub>This section is incomplete due to insufficient stock of testing devices. I.e. I (the author) just bought the cheapest device that doesn't support a lot of features others do. For example this 3 button 1 knob keypad doesn't support colors, and only has 3 modes, on being the Off state</sub>
-
-##### Key sequence
-You can record a key sequence for a button that will be played back using the record ![image](https://github.com/rOzzy1987/MacroPad/assets/617600/f605970c-4aa9-4aeb-84aa-b4ff88b8f164) button. If you want to correct a typo or want to start over just use the backspace
-![image](https://github.com/rOzzy1987/MacroPad/assets/617600/7e396ae4-1db1-4bfc-a4b5-d19c1af4af29) and clear ![image](https://github.com/rOzzy1987/MacroPad/assets/617600/2ec5a021-479d-4a49-a881-7573ca38bbb8) buttons.
-
-The app records keys and modifiers together.
-
-**NOTE:**
-The 3 button 1 knob keypad only stores modifiers for the first key in the sequence! Others should work as intended.
-
-##### Media keys
-Support is limited, but it works just by selecting the media key you need
-
-##### Mouse
-Select the button or scroll direction you need and add modifier keys as needed
-
-<sub>The 3 button 1 knob keypad only supports the left side modifiers, but others should support all</sub>
-
-#### Saving to keypad
-To save your settings just click the upload button  ![image](https://github.com/rOzzy1987/MacroPad/assets/617600/79128933-1b53-419a-a90d-3a04515bce8c)
-
-## Contribute
-### layouts.txt
-If you have a keypad that is not represented in this software, you can define your own layout in _layouts.txt_. If you do, and it works, please add it in a pull request, or just send it to me.
-
-This file is storing visual representations and metadata only, it will not limit or change anything in the communication between the keypad and your computer.
-
-#### File format
-This file is a list of layout definitions
-- You can comment a line using `//`
-- Whitespace-insensitive
-- Indentation is optional
-
-Layout definition:
-```
-Layout: {LayoutName}
-	{VendorId}:{ProductId},[{VendorId2}:{ProductId2}, ...]
-	{LayerNumbers}:{MaxCharactersInSequence}:{DelaySupport}:{LedColorSupport}:{LedModeCount}
-	{ButtonsAndKnobs}	
+```bash
+dotnet run --project src/RSoft.MacroPad      # abre o app
+dotnet test src/RSoft.MacroPad.Tests         # roda os testes
+dotnet build src/RSoft.MacroPad.sln -c Release
 ```
 
-Button format:
+Não precisa instalar nada no Windows: o app é um executável solto que lê os arquivos de configuração da própria pasta.
+
+## Como usar
+
+1. Ligue o macropad no USB. O topo da janela mostra "Macropad conectado" e o modelo é detectado sozinho.
+2. Se o modelo detectado não for o seu, clique no nome dele e escolha o mais parecido. O app lembra a escolha.
+3. Clique numa tecla ou num knob no desenho. Em knob, o lado esquerdo é girar para a esquerda, o meio é apertar e o direito é girar para a direita.
+4. Escolha a ação nas abas da direita.
+5. Clique em **Enviar para o teclado**. O nome fica escrito na tecla do desenho.
+
+Teclados com camadas guardam configurações diferentes em cada uma. Escolha a camada antes de enviar.
+
+## Se o seu macropad não for reconhecido
+
+O app só conversa com os aparelhos listados no `src/RSoft.MacroPad/config.txt`. Com o teclado ligado, ele procura
+modelos parecidos e oferece **"Tentar assim mesmo"**, já salvando no arquivo. Para fazer na mão:
+
+1. Descubra o ID no PowerShell:
+
+   ```powershell
+   Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match 'VID_' } | Select-Object FriendlyName, InstanceId
+   ```
+
+   Ligue e desligue o teclado para ver qual linha aparece e some. Anote `VID_XXXX` e `PID_YYYY` (estão em hexadecimal).
+
+2. Converta para decimal e acrescente em `config.txt`:
+
+   ```
+   {VendorId}:{ProductId},mi_00,1
+   ```
+
+   O `mi_00` é a interface de configuração e o `1` é o protocolo estendido (use `0` para o protocolo antigo).
+
+3. Para o desenho ficar igual ao seu teclado, acrescente um layout em `src/RSoft.MacroPad/layouts.txt`. O formato
+   está explicado no começo do arquivo.
+
+Modelos já testados de verdade, com envio funcionando: `20812:34896` (12 teclas e 2 knobs, protocolo estendido).
+
+## Arquivos que o app cria
+
+Todos ficam na pasta do executável:
+
+| Arquivo | Para quê |
+|---|---|
+| `assignments.json` | O que foi enviado para cada tecla, o último modelo escolhido e o tema. |
+| `perfis/` | Um `.json` por perfil salvo. |
+| `relay.json` | As ações das teclas F13 a F24. |
+| `meus-atalhos.txt` | Seus atalhos escritos à mão (veja abaixo). |
+| `colinhas/` | As imagens geradas. |
+| `hid.log` e `error.log` | O que foi enviado ao teclado e os erros, para investigar problema. |
+
+O macropad não consegue informar como ele está configurado. Os nomes nas teclas mostram só o que saiu deste PC.
+
+## Seus próprios atalhos
+
+O arquivo `meus-atalhos.txt` nasce com exemplos. Uma linha por atalho:
+
 ```
-B{ButtonId},{PosX},{PosY},[{SizeX},{SizeY}]
+Paleta de comandos = Ctrl + Shift + P
+Salvar tudo = Ctrl + K > S
+Print da janela = Alt + Print Screen
 ```
 
-Knob format:
+O `>` separa combinações numa sequência. Linhas com `//` são comentário. Reabra o app e os atalhos aparecem na
+categoria **Meus**. Linha que o app não entender é apontada na tela, sem derrubar as outras.
+
+## Limites que vêm do hardware
+
+- Cada macro guarda no máximo **18 teclas**; o modelo de 3 teclas guarda 5 e só aplica Ctrl/Shift na primeira delas.
+- O teclado não digita acento nem `ç`, e símbolos como `? ; : /` mudam de lugar conforme o layout do PC. Para texto
+  com acento, use a aba Turbo, onde quem digita é o computador.
+- O que o macropad manda é sempre o mesmo, esteja o app aberto ou não. A exceção é o Turbo, que depende do app rodando.
+- Trocar a iluminação grava na memória do teclado. Não vale ficar trocando de cor de segundo em segundo.
+
+## O que mudou em relação ao projeto original
+
+Interface refeita, atalhos prontos, kits, perfis, Turbo, colinha, tema escuro e estes consertos, vindos das issues do projeto original:
+
+- Gravar a tecla **Pause** salvava NumLock ([#43](https://github.com/rOzzy1987/MacroPad/issues/43)): as duas têm o mesmo
+  código físico, e agora teclas iguais em todo layout valem pelo código virtual.
+- O app quebrava ao conectar em alguns modelos ([#34](https://github.com/rOzzy1987/MacroPad/issues/34)): a escrita USB
+  agora falha com aviso em vez de derrubar o programa.
+- A janela não cabia em tela pequena ([#38](https://github.com/rOzzy1987/MacroPad/issues/38)).
+- Teclado não reconhecido ([#36](https://github.com/rOzzy1987/MacroPad/issues/36) e
+  [#37](https://github.com/rOzzy1987/MacroPad/issues/37)): o app agora encontra o aparelho e oferece cadastrá-lo.
+- O `layouts.txt` tinha o fabricante trocado (4498 em vez de 4489) em 6 modelos, então eles nunca eram detectados.
+
+## Estrutura
+
 ```
-K{KnobId},{PosX},{PosY},[{SizeX},{SizeY}]
+src/
+  RSoft.MacroPad/            App (WinForms): telas, desenho do teclado, gravação de atalhos
+    Controls/                Componentes visuais e as abas
+    Infrastructure/          Gancho de teclado, envio de teclas pelo PC, chamadas do Windows
+  RSoft.MacroPad.BLL/        Regras e comunicação USB
+    Macros/                  Catálogo de atalhos, kits, perfis, texto para teclas
+    Infrasturture/           Protocolo do teclado e camada HID (do projeto original)
+  RSoft.MacroPad.Tests/      Testes da parte que não depende de tela
 ```
 
-SizeX and SizeY have a default value of 20 and roughly translate to mm units  
-ButtonId can be between 1-12  
-KnobId can be between 1-3
+## Licença
 
-### config.txt
-This file tells what kind of devices to look for. The app is looking for a device with the given VendorId and ProductId. Then, it will search for a HID device under that, which has the given path parameter present in it's path
-
-
-#### File Format
-
-This file is a list supported devices, each is a single line
-- You can comment a line using `//`
-- Whitespace-insensitive
-- Indentation is optional
-```
-{VendorId}:{ProductId},{PathFragment},{ProtocolVersion}
-```
-
-ProtocolVersion can be 0 (Legacy) or 1 (Extended). Apart from one device (the 3 button 1 knob) all devices use the extended protocol
-
-#### Adding your own
-Find your device in Windows' Device Manager:
-- `View` > `Devices by type`
-- In the device tree find `Human Interface Devices` > `USB Input Device` 
-  - You will find several of these so start by looking at their hardware ids. Write them down 
-    - Double click device and select the `Details` tab
-    - Select `Hardware Ids` from the Properties dropdown. You'll find the VendorID, ProductID and PathFragment in the format of `USB\VID_{VendorId}&PID_{ProductID}&{PathFragment}`of `USB\VID_{VendorId}&PID_{ProductID}&REV_0000&{PathFragment}`
-  - Disconnect the keypad and check which ones disappeared from the tree. Use this information to write a new line in the config file
-- For the ProtocolVersion your best bet would be `1` since most of these keypads are using that. If that doesn't work, try `0`.
-
-### Bug reporting
-If you encounter any bugs, please consider creating a ticket in the issues serction on github or contact me via email.
-
-Also please consider sharing 
-- a photo of your keypad
-- a screenshot of the app just after connecting the keypad
-- the `hid.log` file and the `error.log` file in your app's root directory
-
-## Disclaimer
-Please note that I am but one single developer upset about the unfriendliness of the original software shipped with my keypad. My intention is to make good, usable software, but I did, do and will make mistakes. Theoretically this software may not cause any harm to your computer, or any peripherals whatsoever, but still: Use at your own risk!
-
-## Contact me
-Drop a mail to rozovits.mihaly@gmail.com
+GPL-3.0, como o projeto original. Baseado no [RSoft MacroPad](https://github.com/rOzzy1987/MacroPad) de
+Mihály Rozovits, que descobriu o protocolo destes teclados.

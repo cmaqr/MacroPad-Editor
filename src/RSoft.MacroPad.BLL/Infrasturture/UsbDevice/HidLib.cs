@@ -1,5 +1,6 @@
 ﻿using HidLibrary;
 using RSoft.MacroPad.BLL.Infrasturture.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -61,17 +62,42 @@ namespace RSoft.MacroPad.BLL.Infrasturture.UsbDevice
 
         public bool WriteDevice(byte reportId, byte[] buffer)
         {
-            var report = _hidDevice.CreateReport();
-            report.ReportId = reportId;
+            if (_hidDevice == null)
+                return false;
 
-            var byteCount = report.Data.Length;
+            try
+            {
+                var report = _hidDevice.CreateReport();
+                report.ReportId = reportId;
 
-            for (int i = 0; i < byteCount; ++i)
-                report.Data[i] = buffer[i];
-           
-            HidLog.AppendMsg(report.ReportId, ProtocolType == Model.ProtocolType.Legacy ? report.Data.Take(8) : report.Data);
+                // Alguns teclados informam um tamanho de report diferente do nosso buffer.
+                // Copiar só o que cabe nos dois evita estourar o índice (issue #34 do projeto original).
+                var byteCount = Math.Min(report.Data.Length, buffer.Length);
+                for (int i = 0; i < byteCount; ++i)
+                    report.Data[i] = buffer[i];
 
-            return _hidDevice.WriteReport(report, 500);
+                HidLog.AppendMsg(report.ReportId, ProtocolType == Model.ProtocolType.Legacy ? report.Data.Take(8) : report.Data);
+
+                return _hidDevice.WriteReport(report, 500);
+            }
+            catch (Exception)
+            {
+                // Teclado que informa tamanho de report inválido faz a biblioteca HID estourar.
+                // Em vez de derrubar o app, a escrita falha e a tela avisa.
+                _deviceStatus = false;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Lista os produtos de um fabricante que estão ligados agora, para identificar macropad
+        /// que ainda não está no config.txt (issues #36 e #37 do projeto original).
+        /// </summary>
+        public static IEnumerable<(ushort ProductId, string Path)> FindConnectedProducts(ushort vendorId)
+        {
+            return HidDevices.Enumerate(vendorId)
+                .Select(device => ((ushort)device.Attributes.ProductId, device.DevicePath))
+                .ToList();
         }
     }
 }

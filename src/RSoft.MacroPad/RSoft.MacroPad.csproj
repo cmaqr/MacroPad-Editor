@@ -21,6 +21,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <Title>RSoft MacroPad</Title>
+    <ApplicationIcon>macropad.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup>

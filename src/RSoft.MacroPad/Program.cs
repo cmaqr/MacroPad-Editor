@@ -14,6 +14,12 @@ namespace RSoft.MacroPad
         {
             try
             {
+                // O app lê e escreve os arquivos dele pelo nome simples (config.txt, perfis/...). Aberto por um
+                // atalho que aponta para outra pasta, ele não achava nada e fechava calado.
+                var appFolder = Path.GetDirectoryName(Environment.ProcessPath);
+                if (!string.IsNullOrEmpty(appFolder))
+                    Directory.SetCurrentDirectory(appFolder);
+
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 Application.ThreadException += new ThreadExceptionEventHandler(Program.Application_ThreadException);
                 AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Program.CurrentDomain_UnhandledException);

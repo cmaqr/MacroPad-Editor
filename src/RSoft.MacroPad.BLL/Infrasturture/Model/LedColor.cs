@@ -10,5 +10,7 @@
         Cyan = 0x50,
         Blue = 0x60,
         Purple = 0x70,
+        /// <summary>Só existe nos teclados do dialeto 514C, onde os valores altos acendem branco.</summary>
+        White = 0x80,
     }
 }

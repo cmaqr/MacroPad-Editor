@@ -22,6 +22,7 @@ namespace RSoft.MacroPad.Controls.Pages
             (LedColor.Cyan, "Ciano", Color.FromArgb(50, 173, 230)),
             (LedColor.Blue, "Azul", Color.FromArgb(0, 122, 255)),
             (LedColor.Purple, "Roxo", Color.FromArgb(175, 82, 222)),
+            (LedColor.White, "Branco", Color.White),
         };
 
         private readonly Label _title;
@@ -128,6 +129,12 @@ namespace RSoft.MacroPad.Controls.Pages
                     {
                         using var brush = new SolidBrush(Colors[i].Swatch);
                         graphics.FillEllipse(brush, circle);
+                        // O branco some no fundo claro, então ganha um contorno
+                        if (Colors[i].Value == LedColor.White)
+                        {
+                            using var outline = new Pen(Theme.Separator, Theme.Scale(this, 1.5f));
+                            graphics.DrawEllipse(outline, circle);
+                        }
                     }
 
                     if (i == SelectedIndex)

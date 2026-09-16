@@ -14,7 +14,9 @@ namespace RSoft.MacroPad.BLL
         /// </summary>
         private static (ushort VendorId, ushort ProductId)[] _values { get; } = new[] 
         {
-            (4489,34960) 
+            (4489,34960),
+            // 12 teclas e 2 knobs, testado com o aparelho em mãos em 15/09/2026
+            (20812,34896)
         }.Select(x => ((ushort)x.Item1,(ushort)x.Item2)).ToArray();
 
         /// <summary>

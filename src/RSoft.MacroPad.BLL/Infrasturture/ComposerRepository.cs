@@ -22,9 +22,13 @@ namespace RSoft.MacroPad.BLL.Infrasturture
             if (i != -1)
                 return _cache[i].Composer;
 
-            var result = type == ProtocolType.Legacy
-                ? (IReportComposer)new LegacyReportComposer(version)
-                : new ExtendedReportComposer(version);
+            IReportComposer result;
+            switch (type)
+            {
+                case ProtocolType.Legacy: result = new LegacyReportComposer(version); break;
+                case ProtocolType.Ch57x3: result = new Ch57x3ReportComposer(version); break;
+                default: result = new ExtendedReportComposer(version); break;
+            }
             _cache.Add((result, type, version));
             return result;
         }

@@ -417,7 +417,9 @@ namespace RSoft.MacroPad.Forms
             var target = DescribeAction(_deviceCard.SelectedAction);
             if (hasLayers)
                 target += $"  ·  camada {layer}";
-            _summaryCard.ShowSelection(target, _stagedMacro, _layout.SupportsDelay);
+            // O dialeto 514C não tem ajuste de atraso entre as teclas
+            var supportsDelay = _layout.SupportsDelay && _usb.ProtocolType != ProtocolType.Ch57x3;
+            _summaryCard.ShowSelection(target, _stagedMacro, supportsDelay);
             _summaryCard.SetCanSend(_usb.IsConnected && _stagedMacro != null);
 
             _kitsPage.SetLayout(_layout, layer, hasLayers);

@@ -16,4 +16,4 @@
 4489:34867,mi_00,1
 4489:34832,mi_00,1
 // Macropad de 12 teclas e 2 knobs (fabricante 514C, produto 8850), lido do PC em 15/09/2026
-20812:34896,mi_00,1
+20812:34896,mi_00,2

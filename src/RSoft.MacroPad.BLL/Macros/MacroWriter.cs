@@ -34,9 +34,9 @@ namespace RSoft.MacroPad.BLL.Macros
             return true;
         }
 
-        public static bool WriteLed(IUsb usb, IReportComposer composer, byte layer, LedMode mode, LedColor color)
+        public static bool WriteLed(IUsb usb, IReportComposer composer, byte layer, LightScheme scheme)
         {
-            foreach (var report in composer.Led(layer, mode, color))
+            foreach (var report in composer.Led(layer, scheme))
             {
                 if (!usb.Write(report))
                     return false;

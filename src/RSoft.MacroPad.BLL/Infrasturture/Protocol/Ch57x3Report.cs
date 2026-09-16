@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RSoft.MacroPad.BLL.Infrasturture.Model;
@@ -36,11 +37,16 @@ namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
         /// <summary>Máximo de passos que cabe numa tecla, contando os modificadores.</summary>
         public const int MaxSteps = 18;
 
-        private const byte LedSlot = 0xB0;
         private const byte KeyboardType = 1;
         private const byte MediaType = 2;
         private const byte MouseType = 3;
-        private const byte LedType = 8;
+
+        // A iluminação fala outro comando: cabeçalho 0xFE em vez de 0xFD, com destino fixo 0xB0
+        private const byte LedCommand = 0xFE;
+        private const byte LedSlot = 0xB0;
+        private const byte LedKeyCount = 17;
+        private const byte EnterConfig = 0xFB;
+        private const byte CommitMark = 0xAA;
 
         // Nesse dialeto o modificador não é um bit: é um passo com código próprio
         private const byte CtrlStep = 0xF1;
@@ -115,25 +121,51 @@ namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
             return new Report[] { Ch57x3Report.Create(_reportId, data), Ch57x3Report.CreateEnd(_reportId) };
         }
 
-        public IEnumerable<Report> Led(byte layerNo, LedMode mode, LedColor color)
+        public IEnumerable<Report> Led(byte layerNo, LightScheme scheme)
         {
-            // O byte final junta cor e efeito: cor na parte alta, efeito na baixa
-            var colorAndMode = (byte)((byte)color | (byte)mode);
+            // O comando de luz tem cabeçalho próprio (0xFE, e não 0xFD) e leva um trio RGB por tecla,
+            // sempre 17 trios, mesmo em teclado com menos teclas. A camada aqui conta a partir do zero.
+            var data = new List<byte> { LedCommand, LedSlot, (byte)(layerNo > 0 ? layerNo - 1 : 0), (byte)scheme.Mode };
+            for (var keyNumber = 1; keyNumber <= LedKeyCount; keyNumber++)
+            {
+                var color = scheme.ColorOf(keyNumber);
+                if (color.IsRandom)
+                {
+                    // Cada tecla ganha uma cor sorteada, já que o teclado não sorteia sozinho
+                    data.Add((byte)Random.Shared.Next(256));
+                    data.Add((byte)Random.Shared.Next(256));
+                    data.Add((byte)Random.Shared.Next(256));
+                }
+                else
+                {
+                    data.Add(color.Red);
+                    data.Add(color.Green);
+                    data.Add(color.Blue);
+                }
+            }
 
             return new Report[]
             {
-                Ch57x3Report.Create(_reportId, Ch57x3Report.WriteCommand, LedSlot, layerNo, LedType, 0, 0, 0, 0, 0, 1, 0, colorAndMode),
+                // Sem este preâmbulo o teclado aceita o comando de luz e joga fora sem avisar
+                Ch57x3Report.Create(_reportId, EnterConfig, EnterConfig, EnterConfig),
+                Ch57x3Report.Create(_reportId, data.ToArray()),
+                Ch57x3Report.Create(_reportId, CommitMark, CommitMark),
                 Ch57x3Report.CreateEnd(_reportId),
+                Ch57x3Report.Create(_reportId, CommitMark, CommitMark),
             };
         }
 
         /// <summary>
-        /// Neste dialeto as teclas ocupam os slots 1 a 16 e as ações de knob vêm depois, a partir do 17.
+        /// Neste dialeto as teclas ocupam os slots 1 a 15 e os knobs vêm a partir do 16,
+        /// três slots por knob, na ordem girar à esquerda, apertar, girar à direita.
+        /// Medido no aparelho em 15/09/2026: a documentação pública dizia 17, e está errada para este modelo.
         /// </summary>
+        public const byte FirstKnobSlot = 16;
+
         public static byte Slot(InputAction action)
         {
             if (action >= InputAction.Knob1Left)
-                return (byte)(action - InputAction.Knob1Left + 17);
+                return (byte)(action - InputAction.Knob1Left + FirstKnobSlot);
             return (byte)action;
         }
 

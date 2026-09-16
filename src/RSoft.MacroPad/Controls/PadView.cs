@@ -16,6 +16,7 @@ namespace RSoft.MacroPad.Controls
         private KeyboardLayout _layout;
         private InputAction _selectedAction = InputAction.None;
         private IReadOnlyDictionary<InputAction, string> _titles = new Dictionary<InputAction, string>();
+        private IReadOnlyDictionary<InputAction, Color> _keyColors = new Dictionary<InputAction, Color>();
         private PhysicalControl _hovered;
 
         public event EventHandler<InputAction> ActionSelected;
@@ -40,6 +41,16 @@ namespace RSoft.MacroPad.Controls
         {
             get => _titles;
             set { _titles = value ?? new Dictionary<InputAction, string>(); Invalidate(); }
+        }
+
+        /// <summary>
+        /// Cor da luz de cada tecla. Quando está preenchido, a tecla aparece com a cor que vai acender
+        /// em vez da cor do tema, e é assim que a tela de iluminação mostra o resultado antes de enviar.
+        /// </summary>
+        public IReadOnlyDictionary<InputAction, Color> KeyColors
+        {
+            get => _keyColors;
+            set { _keyColors = value ?? new Dictionary<InputAction, Color>(); Invalidate(); }
         }
 
         public PadView()
@@ -71,19 +82,29 @@ namespace RSoft.MacroPad.Controls
 
         private void PaintButton(Graphics graphics, RectangleF bounds, PhysicalControl control, bool isSelected, float scale)
         {
-            var fill = KeyFill(control, isSelected);
+            var action = control.Actions.First();
+            var isLit = _keyColors.TryGetValue(action, out var litColor);
+            var fill = isLit ? litColor : KeyFill(control, isSelected);
+
             // Sombra embaixo da tecla para parecer que ela está elevada
             Theme.FillRounded(graphics, Color.FromArgb(90, 0, 0, 0), new RectangleF(bounds.X, bounds.Y + scale * 0.6f, bounds.Width, bounds.Height), 2.5f * scale);
             Theme.FillRounded(graphics, fill, bounds, 2.5f * scale);
 
-            var foreground = isSelected ? Color.White : Theme.Text;
-            var secondary = isSelected ? Color.FromArgb(210, 255, 255, 255) : Theme.TertiaryText;
+            // Com a tecla pintada, a seleção vira um contorno: trocar o preenchimento esconderia a cor
+            if (isLit && isSelected)
+            {
+                using var ring = new Pen(Theme.Accent, Math.Max(2f, scale * 0.8f));
+                graphics.DrawRectangle(ring, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            }
+
+            var onDarkKey = isSelected && !isLit || isLit && fill.GetBrightness() < 0.55f;
+            var foreground = onDarkKey ? Color.White : Theme.Text;
+            var secondary = onDarkKey ? Color.FromArgb(210, 255, 255, 255) : Theme.TertiaryText;
             var rectangle = Rectangle.Round(bounds);
-            var action = control.Actions.First();
 
             if (!_titles.TryGetValue(action, out var title))
             {
-                TextRenderer.DrawText(graphics, control.Name, Theme.KeyNumber, rectangle, isSelected ? Color.White : Theme.SecondaryText,
+                TextRenderer.DrawText(graphics, control.Name, Theme.KeyNumber, rectangle, onDarkKey ? Color.White : Theme.SecondaryText,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 return;
             }

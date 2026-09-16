@@ -117,7 +117,7 @@ Layout: Mini Typewriter (6Btn 2Kn)
 // Posição dos knobs é só visual e foi estimada; ajuste K1/K2 se no seu teclado eles ficam em outro lugar.
 Layout: 12 buttons 2 knobs
 	20812:34896
-	3:18:1:1:6
+	3:18:1:1:5
 	B1,5,5
 	B2,25,5
 	B3,45,5

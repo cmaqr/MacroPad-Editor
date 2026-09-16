@@ -2,6 +2,7 @@
 using System.Linq;
 using RSoft.MacroPad.BLL.Infrasturture.Model;
 using RSoft.MacroPad.BLL.Infrasturture.Protocol.Legacy;
+using RSoft.MacroPad.BLL.Infrasturture.Protocol.Mappers;
 
 namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
 {
@@ -13,7 +14,7 @@ namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
 
         IEnumerable<Report> Mouse(InputAction action, byte layerNo, MouseButton func, Modifier modifiers);
 
-        IEnumerable<Report> Led(byte layerNo, LedMode mode, LedColor color);
+        IEnumerable<Report> Led(byte layerNo, LightScheme scheme);
 
 
     }
@@ -70,12 +71,13 @@ namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
             return KeyFunctionEnd(result);
         }
 
-        public IEnumerable<Report> Led(byte layerNo, LedMode mode, LedColor color)
+        public IEnumerable<Report> Led(byte layerNo, LightScheme scheme)
         {
             var result = new List<Report>();
-            if ((byte)mode > 2 && ReportId == 0) 
+            if ((byte)scheme.Mode > 2 && ReportId == 0)
                 return result;
-            result.Add(LedFunctionReport.Create(ReportId, mode, color));
+            // Este teclado não tem cor por tecla: vale só a cor geral, e na aproximação que ele acende
+            result.Add(LedFunctionReport.Create(ReportId, scheme.Mode, LedColorMapper.Nearest(scheme.BaseColor)));
             result.Add(WriteFlashReport.Create(ReportId, led: true));
             return result;
         }
@@ -92,9 +94,9 @@ namespace RSoft.MacroPad.BLL.Infrasturture.Protocol
             return new[] { ExtendedReport.CreateKey(ReportId, action, layerNo, sequence, delay) };
         }
 
-        public IEnumerable<Report> Led(byte layerNo, LedMode mode, LedColor color)
+        public IEnumerable<Report> Led(byte layerNo, LightScheme scheme)
         {
-            return new[] { ExtendedReport.CreateLed(ReportId, layerNo, mode, color) };
+            return new[] { ExtendedReport.CreateLed(ReportId, layerNo, scheme.Mode, LedColorMapper.Nearest(scheme.BaseColor)) };
         }
 
         public IEnumerable<Report> Media(InputAction action, byte layerNo, MediaKey key)

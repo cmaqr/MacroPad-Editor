@@ -24,6 +24,8 @@ namespace RSoft.MacroPad.Forms
         private const string ProjectUrl = "https://github.com/rOzzy1987/MacroPad";
         private const string UserMacrosFileName = "meus-atalhos.txt";
         private const string AutoApplyProfileKey = "auto-profile";
+        /// <summary>Fabricante 514C (0x514C), cujos macropads falam o dialeto ch57x-3.</summary>
+        private const ushort Ch57x3VendorId = 20812;
 
         private readonly IUsb _usb = new HidLibUsb();
         private readonly ComposerRepository _composerRepository = new ComposerRepository();
@@ -51,6 +53,8 @@ namespace RSoft.MacroPad.Forms
         private readonly RecordPage _recordPage;
         private readonly KitsPage _kitsPage;
         private readonly LightPage _lightPage;
+        /// <summary>Última iluminação escolhida na tela, para ir junto quando um perfil é salvo.</summary>
+        private LightScheme _light = new LightScheme();
         private readonly RelayPage _relayPage;
         private readonly ProfilesPage _profilesPage;
         private readonly Control[] _pages;
@@ -125,7 +129,7 @@ namespace RSoft.MacroPad.Forms
             _textPage.MacroChosen += (s, macro) => StageMacro(macro);
             _recordPage.MacroChosen += (s, macro) => StageMacro(macro);
             _kitsPage.KitApplyRequested += (s, kit) => ApplyKit(kit);
-            _lightPage.LightApplyRequested += (s, light) => ApplyLight(light.Mode, light.Color);
+            _lightPage.LightApplyRequested += (s, scheme) => ApplyLight(scheme);
             _relayPage.MacroChosen += (s, macro) => StageMacro(macro);
             _relayPage.ActionsChanged += (s, e) => _relayAgent.Refresh();
             _profilesPage.SaveRequested += (s, name) => SaveProfile(name);
@@ -166,11 +170,13 @@ namespace RSoft.MacroPad.Forms
             var startLayout = _layouts.FirstOrDefault(l => l.Name == _assignments.GetLastLayoutName())
                 ?? _layouts.FirstOrDefault(l => l.Products.Any(p => TestedProducts.IsTested(p.VendorId, p.ProductId)))
                 ?? _layouts.First();
-            ApplyLayout(startLayout, detected: false);
-
+            // O config.txt vem antes do layout porque é dele que sai o dialeto de cada modelo,
+            // e as telas se montam de um jeito diferente conforme o dialeto
             var config = new ConfigurationReader().Read("config.txt");
             if (config != null)
                 _usb.SupportedDevices = config.SupportedDevices;
+
+            ApplyLayout(startLayout, detected: false);
             _usb.OnConnected += (s, e) => OnKeypadConnected();
 
             _relayAgent = new RelayAgent(_relayStore, this);
@@ -246,17 +252,18 @@ namespace RSoft.MacroPad.Forms
                 return;
 
             var (vendorId, productId) = _unknownDevice.Value;
+            var protocol = GuessProtocol(vendorId);
             // Os dois caminhos ("mi_00" e "mi_01") cobrem as duas formas que esses teclados se apresentam ao Windows
             var added = new[]
             {
-                (vendorId, productId, "mi_00", ProtocolType.Extended),
-                (vendorId, productId, "mi_01", ProtocolType.Extended),
+                (vendorId, productId, "mi_00", protocol),
+                (vendorId, productId, "mi_01", protocol),
             };
             _usb.SupportedDevices = _usb.SupportedDevices.Concat(added).ToList();
 
             try
             {
-                File.AppendAllText("config.txt", $"{Environment.NewLine}{vendorId}:{productId},mi_00,1{Environment.NewLine}{vendorId}:{productId},mi_01,1{Environment.NewLine}");
+                File.AppendAllText("config.txt", $"{Environment.NewLine}{vendorId}:{productId},mi_00,{(byte)protocol}{Environment.NewLine}{vendorId}:{productId},mi_01,{(byte)protocol}{Environment.NewLine}");
             }
             catch (IOException)
             {
@@ -265,6 +272,29 @@ namespace RSoft.MacroPad.Forms
 
             _deviceCard.HideUnknownDevice();
             _summaryCard.ShowStatus($"Vou tentar falar com o teclado {vendorId}:{productId}. Se não funcionar, ele usa outro protocolo.", TextRole.Secondary);
+        }
+
+        /// <summary>
+        /// Dialeto mais provável para um teclado que ainda não está no config.txt. Os do fabricante 514C
+        /// falam o dialeto de cabeçalho 0xFD; os demais, o protocolo estendido do projeto original.
+        /// </summary>
+        private static ProtocolType GuessProtocol(ushort vendorId)
+        {
+            return vendorId == Ch57x3VendorId ? ProtocolType.Ch57x3 : ProtocolType.Extended;
+        }
+
+        /// <summary>
+        /// Dialeto declarado no config.txt para este modelo. Assim a tela já se ajusta antes de o
+        /// teclado ser ligado, em vez de depender do que o USB informou.
+        /// </summary>
+        private ProtocolType ProtocolOf(KeyboardLayout layout)
+        {
+            foreach (var device in _usb.SupportedDevices ?? Enumerable.Empty<(ushort VendorId, ushort ProductId, string PathFragment, ProtocolType protocolType)>())
+            {
+                if (layout.Products.Any(p => p.VendorId == device.VendorId && p.ProductId == device.ProductId))
+                    return device.protocolType;
+            }
+            return _usb.ProtocolType;
         }
 
         protected override void OnShown(EventArgs e)
@@ -347,7 +377,8 @@ namespace RSoft.MacroPad.Forms
             _presetsPage.SetMaxKeys(layout.MaxCharacters);
             _textPage.SetMaxKeys(layout.MaxCharacters);
             _recordPage.SetMaxKeys(layout.MaxCharacters);
-            _lightPage.SetLayout(layout);
+            _lightPage.SetLayout(layout, ProtocolOf(layout));
+            _lightPage.ShowScheme(_light);
 
             if (_stagedMacro != null && _stagedMacro.Kind == MacroKind.Keys && _stagedMacro.Keys.Count > layout.MaxCharacters)
                 StageMacro(null);
@@ -418,7 +449,7 @@ namespace RSoft.MacroPad.Forms
             if (hasLayers)
                 target += $"  ·  camada {layer}";
             // O dialeto 514C não tem ajuste de atraso entre as teclas
-            var supportsDelay = _layout.SupportsDelay && _usb.ProtocolType != ProtocolType.Ch57x3;
+            var supportsDelay = _layout.SupportsDelay && ProtocolOf(_layout) != ProtocolType.Ch57x3;
             _summaryCard.ShowSelection(target, _stagedMacro, supportsDelay);
             _summaryCard.SetCanSend(_usb.IsConnected && _stagedMacro != null);
 
@@ -493,7 +524,7 @@ namespace RSoft.MacroPad.Forms
                 return;
             }
 
-            _profiles.Save(new Profile { Name = name, LayoutName = _layout.Name, Assignments = assignments });
+            _profiles.Save(new Profile { Name = name, LayoutName = _layout.Name, Assignments = assignments, Light = _light });
             RefreshProfiles();
             _summaryCard.ShowStatus($"Perfil \u201C{name}\u201D salvo com {assignments.Count} ações.", TextRole.Success);
         }
@@ -522,6 +553,14 @@ namespace RSoft.MacroPad.Forms
                     break;
                 _assignments.SetMacro(_layout.Name, assignment.Layer, action, macro);
                 written++;
+            }
+
+            // Perfil salvo antes desta versão não tem iluminação; nesse caso a luz fica como está
+            if (profile.Light != null)
+            {
+                _light = profile.Light;
+                _lightPage.ShowScheme(profile.Light);
+                MacroWriter.WriteLed(_usb, composer, _deviceCard.Layer, profile.Light);
             }
             Cursor = Cursors.Default;
 
@@ -641,7 +680,7 @@ namespace RSoft.MacroPad.Forms
             RefreshSelection();
         }
 
-        private void ApplyLight(LedMode mode, LedColor color)
+        private void ApplyLight(LightScheme scheme)
         {
             if (!_usb.IsConnected)
             {
@@ -649,9 +688,10 @@ namespace RSoft.MacroPad.Forms
                 return;
             }
 
+            _light = scheme;
             var composer = _composerRepository.Get(_usb.ProtocolType, _usb.Version);
             HidLog.ClearLog();
-            if (MacroWriter.WriteLed(_usb, composer, _deviceCard.Layer, mode, color))
+            if (MacroWriter.WriteLed(_usb, composer, _deviceCard.Layer, scheme))
                 _summaryCard.ShowStatus($"✓  Iluminação aplicada às {DateTime.Now:HH:mm}.", TextRole.Success);
             else
                 _summaryCard.ShowStatus("Não deu certo mudar a luz. Reconecte o USB e tente de novo.", TextRole.Danger);

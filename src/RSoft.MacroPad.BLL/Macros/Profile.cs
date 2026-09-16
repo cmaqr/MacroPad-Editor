@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using RSoft.MacroPad.BLL.Infrasturture.Model;
 
 namespace RSoft.MacroPad.BLL.Macros
 {
@@ -15,8 +16,9 @@ namespace RSoft.MacroPad.BLL.Macros
         public string LayoutName { get; set; }
         public DateTime SavedAt { get; set; }
         public List<ProfileAssignment> Assignments { get; set; } = new List<ProfileAssignment>();
-        public string LedMode { get; set; }
-        public string LedColor { get; set; }
+
+        /// <summary>Iluminação salva junto. Fica nulo em perfil gravado antes desta versão.</summary>
+        public LightScheme Light { get; set; }
     }
 
     public sealed class ProfileAssignment
